@@ -5,10 +5,7 @@
     <v-content>
       <router-view />
     </v-content>
-    <v-footer
-      :fixed="fixed"
-      app
-    >
+    <v-footer app>
       <span>&copy; 2018 Built with Love by Jetzable</span>
     </v-footer>
   </v-app>

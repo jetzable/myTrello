@@ -79,10 +79,19 @@ export default {
         confirmPassword === vm.user.password || "Password Must Match"
     ]
   }),
+  computed: {
+    ...mapState("users", { loading: "isCreatePending" })
+  },
   methods: {
     signUp() {
       if (this.valid) {
         console.log("ya");
+        const { User } = this.$FeathersVuex;
+        const user = new User(this.user);
+        user.save().then(user => {
+          console.log(user);
+          this.$router.push("/login");
+        });
       }
     }
   }
