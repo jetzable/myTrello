@@ -4,10 +4,23 @@ import Home from './views/Home.vue'
 import Signup from './views/Signup.vue'
 import Login from './views/Login.vue'
 import Boards from './views/Boards.vue'
+import Board from './views/Board.vue'
 
 import store from './store'
 
-Vue.use(Router)
+Vue.use(Router);
+
+function isLoggedIn(to, from, next) {
+  store.dispatch('auth/authenticate')
+    .then(() => {
+      console.log("Yay");
+      next();
+    })
+    .catch(e => {
+      console.error("Authentication error", e);
+      next('/login');
+    });
+};
 
 export default new Router({
   mode: 'history',
@@ -42,17 +55,13 @@ export default new Router({
       path: '/boards',
       name: 'boards',
       component: Boards,
-      beforeEnter(to, from, next) {
-        store.dispatch('auth/authenticate')
-          .then(() => {
-            console.log("Yay");
-            next();
-          })
-          .catch(e => {
-            console.error("Authentication error", e);
-            next('/login');
-          });
-      }
+      beforeEnter: isLoggedIn
+    },
+    {
+      path: '/boards/:id',
+      name: 'board',
+      component: Board,
+      beforeEnter: isLoggedIn
     }
   ]
 })

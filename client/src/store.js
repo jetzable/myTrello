@@ -26,6 +26,12 @@ export default new Vuex.Store({
         imageUrl: ""
       },
     }),
+    service('boards', {
+      instanceDefaults: {
+        name: "",
+        background: "",
+      },
+    }),
     auth({
       userService: 'users'
     })

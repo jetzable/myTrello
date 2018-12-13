@@ -13,28 +13,18 @@
           color="primary"
           indeterminate
         ></v-progress-circular>
-        <v-flex
+        <h2 v-if="board">{{board.name}}</h2>
+        <!-- <v-flex
           sm3
           v-if="!loading"
-          v-for="board in boards"
-          :key="board._id"
+          v-for="list in lists"
+          :key="list._id"
           pa-2
         >
           <v-card>
-            <v-img
-              class="white--text"
-              height="200px"
-              :src="board.background"
-            />
             <v-card-title primary-title>
-              <div class="headline">{{board.name}}</div>
+              <div class="headline">{{list.name}}</div>
             </v-card-title>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                :to="{ name: 'board', params: { id: board._id}}"
-              >Go</v-btn>
-            </v-card-actions>
           </v-card>
         </v-flex>
         <v-flex
@@ -44,23 +34,17 @@
           <v-card>
             <v-card-title>
               <div>
-                <div class="headline">Create Board</div>
+                <div class="headline">Create List</div>
                 <div>
                   <v-form
-                    v-if="!creating"
-                    v-model="valid"
-                    @submit.prevent="createBoard"
+                    v-if="!creatingList"
+                    v-model="validList"
+                    @submit.prevent="createList"
                   >
                     <v-text-field
-                      v-model="board.name"
+                      v-model="list.name"
                       :rules="notEmptyRules"
                       label="Name"
-                      required
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="board.background"
-                      :rules="notEmptyRules"
-                      label="Background"
                       required
                     ></v-text-field>
                     <v-card-actions>
@@ -68,12 +52,12 @@
                         flat
                         color="secondary"
                         type="submit"
-                        :disabled="!valid"
-                      >Create</v-btn>
+                        :disabled="!validList"
+                      >Create List</v-btn>
                     </v-card-actions>
                   </v-form>
                   <v-progress-circular
-                    v-if="creating"
+                    v-if="creatingList"
                     :size="70"
                     :width="7"
                     color="primary"
@@ -83,7 +67,7 @@
               </div>
             </v-card-title>
           </v-card>
-        </v-flex>
+        </v-flex> -->
       </v-layout>
     </v-slide-y-transition>
   </v-container>
@@ -93,43 +77,38 @@
 import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
-  name: "boards",
+  name: "board",
   data: () => ({
-    valid: false,
-    board: {
-      name: "",
-      background: ""
+    validList: false,
+    board: {},
+    list: {
+      name: ""
     },
     notEmptyRules: [value => !!value || "This Field is required"]
   }),
   mounted() {
-    this.findBoards({ query: {} }).then(response => {
-      const boards = response.data || response;
+    this.getBoard(this.$route.params.id).then(response => {
+      this.board = response.data || response;
     });
   },
   methods: {
-    ...mapActions("boards", { findBoards: "find" }),
-    createBoard() {
-      if (this.valid) {
-        const { Board } = this.$FeathersVuex;
-        const board = new Board(this.board);
-        board.save();
-        this.board = {
-          name: "",
-          background: ""
+    ...mapActions("boards", { getBoard: "get" }),
+    createList() {
+      if (this.validList) {
+        const { List } = this.$FeathersVuex;
+        const list = new List(this.list);
+        list.save();
+        this.list = {
+          name: ""
         };
       }
     }
   },
   computed: {
     ...mapState("boards", {
-      loading: "isFindPending",
+      loading: "isGetPending",
       creating: "isCreatingPending"
-    }),
-    ...mapGetters("boards", { findBoardsInStore: "find" }),
-    boards() {
-      return this.findBoardsInStore({ query: {} }).data;
-    }
+    })
   }
 };
 </script>
