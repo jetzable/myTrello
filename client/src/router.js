@@ -5,6 +5,8 @@ import Signup from './views/Signup.vue'
 import Login from './views/Login.vue'
 import Boards from './views/Boards.vue'
 
+import store from './store'
+
 Vue.use(Router)
 
 export default new Router({
@@ -13,7 +15,18 @@ export default new Router({
   routes: [{
       path: '/',
       name: 'home',
-      component: Home
+      component: Home,
+      beforeEnter(to, from, next) {
+        store.dispatch('auth/authenticate')
+          .then(() => {
+            console.log("Yay");
+            next("/boards");
+          })
+          .catch(e => {
+            console.error("Authentication error", e);
+            next('/login');
+          });
+      }
     },
     {
       path: '/signup',
@@ -28,7 +41,18 @@ export default new Router({
     {
       path: '/boards',
       name: 'boards',
-      component: Boards
+      component: Boards,
+      beforeEnter(to, from, next) {
+        store.dispatch('auth/authenticate')
+          .then(() => {
+            console.log("Yay");
+            next();
+          })
+          .catch(e => {
+            console.error("Authentication error", e);
+            next('/login');
+          });
+      }
     }
   ]
 })
