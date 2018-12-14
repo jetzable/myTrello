@@ -32,6 +32,14 @@ export default new Vuex.Store({
         background: "",
       },
     }),
+    service('lists', {
+      instanceDefaults: {
+        name: "",
+        order: "",
+        boardId: '',
+        archived: false
+      },
+    }),
     auth({
       userService: 'users'
     })

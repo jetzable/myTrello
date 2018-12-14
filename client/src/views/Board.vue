@@ -7,16 +7,18 @@
         wrap
       >
         <v-progress-circular
-          v-if="loading"
+          v-if="loadingBoard || loadingLists"
           :size="70"
           :width="7"
           color="primary"
           indeterminate
         ></v-progress-circular>
-        <h2 v-if="board">{{board.name}}</h2>
-        <!-- <v-flex
+        <v-flex xs12>
+          <h2 v-if="board">{{board.name}}</h2>
+        </v-flex>
+        <v-flex
           sm3
-          v-if="!loading"
+          v-if="!loadingLists"
           v-for="list in lists"
           :key="list._id"
           pa-2
@@ -67,7 +69,7 @@
               </div>
             </v-card-title>
           </v-card>
-        </v-flex> -->
+        </v-flex>
       </v-layout>
     </v-slide-y-transition>
   </v-container>
@@ -82,7 +84,9 @@ export default {
     validList: false,
     board: {},
     list: {
-      name: ""
+      name: "",
+      order: 0,
+      archived: false
     },
     notEmptyRules: [value => !!value || "This Field is required"]
   }),
@@ -90,25 +94,47 @@ export default {
     this.getBoard(this.$route.params.id).then(response => {
       this.board = response.data || response;
     });
+    this.findLists({
+      query: {
+        boardId: this.$route.params.id
+      }
+    }).then(response => {
+      const lists = response.data || response;
+    });
   },
   methods: {
     ...mapActions("boards", { getBoard: "get" }),
+    ...mapActions("lists", { findLists: "find" }),
     createList() {
       if (this.validList) {
         const { List } = this.$FeathersVuex;
+        this.list.boardId = this.$route.params.id;
         const list = new List(this.list);
         list.save();
         this.list = {
-          name: ""
+          name: "",
+          order: 0,
+          archived: false
         };
       }
     }
   },
   computed: {
     ...mapState("boards", {
-      loading: "isGetPending",
-      creating: "isCreatingPending"
-    })
+      loadingBoard: "isGetPending"
+    }),
+    ...mapState("lists", {
+      loadingLists: "isFindPending",
+      creatingList: "isCreatePending"
+    }),
+    ...mapGetters("lists", { findListsInStore: "find" }),
+    lists() {
+      return this.findListsInStore({
+        query: {
+          boardId: this.$route.params.id
+        }
+      }).data;
+    }
   }
 };
 </script>
