@@ -3,7 +3,6 @@
     <v-slide-y-transition mode="out-in">
       <v-layout
         row
-        align-center
         wrap
       >
         <v-progress-circular
@@ -25,8 +24,41 @@
         >
           <v-card>
             <v-card-title primary-title>
-              <div class="headline">{{list.name}}</div>
+              <v-layout column>
+                <v-flex xs12>
+                  <div class="headline">{{list.name}}</div>
+                </v-flex>
+
+                <v-flex
+                  xs12
+                  v-if="cardsByListId[list._id]"
+                  v-for="card in cardsByListId[list._id]"
+                  :key="card._id"
+                  class="pa-1"
+                >
+                  <v-card
+                    color="purple"
+                    class="white--text"
+                  >
+                    <v-layout>
+                      <v-flex xs12>
+                        <v-card-title primary-title>
+                          <div>
+                            <div class="headline">{{card.title}}</div>
+                          </div>
+                        </v-card-title>
+                      </v-flex>
+                    </v-layout>
+                  </v-card>
+                </v-flex>
+              </v-layout>
             </v-card-title>
+            <v-card-actions>
+              <create-card
+                :listId="list._id"
+                :boardId="$route.params.id"
+              ></create-card>
+            </v-card-actions>
           </v-card>
         </v-flex>
         <v-flex
@@ -77,9 +109,13 @@
 
 <script>
 import { mapState, mapActions, mapGetters } from "vuex";
+import CreateCard from "./CreateCard";
 
 export default {
   name: "board",
+  components: {
+    CreateCard
+  },
   data: () => ({
     validList: false,
     board: {},
@@ -101,10 +137,19 @@ export default {
     }).then(response => {
       const lists = response.data || response;
     });
+    this.findCards({
+      query: {
+        boardId: this.$route.params.id
+      }
+    }).then(response => {
+      const cards = response.data || response;
+    });
   },
   methods: {
     ...mapActions("boards", { getBoard: "get" }),
     ...mapActions("lists", { findLists: "find" }),
+    ...mapActions("cards", { findCards: "find" }),
+
     createList() {
       if (this.validList) {
         const { List } = this.$FeathersVuex;
@@ -128,12 +173,28 @@ export default {
       creatingList: "isCreatePending"
     }),
     ...mapGetters("lists", { findListsInStore: "find" }),
+    ...mapGetters("cards", { findCardsInStore: "find" }),
+
     lists() {
       return this.findListsInStore({
         query: {
           boardId: this.$route.params.id
         }
       }).data;
+    },
+    cards() {
+      return this.findCardsInStore({
+        query: {
+          boardId: this.$route.params.id
+        }
+      }).data;
+    },
+    cardsByListId() {
+      return this.cards.reduce((byId, card) => {
+        byId[card.listId] = byId[card.listId] || [];
+        byId[card.listId].push(card);
+        return byId;
+      }, {});
     }
   }
 };

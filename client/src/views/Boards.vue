@@ -20,7 +20,6 @@
           :key="board._id"
           pa-2
         >
-          <pre>{{user}}</pre>
           <v-card>
             <v-img
               class="white--text"
