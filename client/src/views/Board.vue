@@ -22,7 +22,10 @@
           :key="list._id"
           pa-2
         >
-          <v-card>
+          <v-card
+            @dragover="setDroppingList($event, list)"
+            :class="{ cyan: droppingList == list}"
+          >
             <v-card-title primary-title>
               <v-layout column>
                 <v-flex xs12>
@@ -39,6 +42,9 @@
                   <v-card
                     color="purple"
                     class="white--text"
+                    draggable="true"
+                    @dragstart="startDraggingCard(card)"
+                    @dragend="dropCard()"
                   >
                     <v-layout>
                       <v-flex xs12>
@@ -117,6 +123,8 @@ export default {
     CreateCard
   },
   data: () => ({
+    droppingList: null,
+    draggingCard: null,
     validList: false,
     board: {},
     list: {
@@ -161,6 +169,21 @@ export default {
           order: 0,
           archived: false
         };
+      }
+    },
+    startDraggingCard(card) {
+      this.draggingCard = card;
+    },
+    setDroppingList(event, list) {
+      this.droppingList = list;
+      event.preventDefault();
+    },
+    dropCard() {
+      if (this.droppingList) {
+        this.draggingCard.listId = this.droppingList._id;
+        this.draggingCard.save();
+        this.droppingList = null;
+        this.draggingCard = null;
       }
     }
   },
