@@ -29,7 +29,7 @@
               </v-card-actions>
             </v-form>
             <v-progress-circular
-              v-if="creatingList"
+              v-if="creatingCard"
               :size="70"
               :width="7"
               color="primary"

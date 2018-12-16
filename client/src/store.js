@@ -51,6 +51,12 @@ export default new Vuex.Store({
         members: []
       }
     }),
+    service('activities', {
+      instanceDefaults: {
+        text: '',
+        boardId: ''
+      }
+    }),
     auth({
       userService: 'users'
     })
