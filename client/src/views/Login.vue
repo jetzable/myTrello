@@ -38,7 +38,7 @@
       </v-layout>
     </v-slide-y-transition>
   </v-container>
-</template>
+</template> 
 
 <script>
 import { mapState, mapActions } from "vuex";
@@ -57,15 +57,14 @@ export default {
     ...mapState("auth", { loading: "isAuthenticatePending" })
   },
   methods: {
-    ...mapActions("auth", ["authenticate"]),
-    login() {
+    ...mapActions("auth", ["authenticate", "logout"]),
+    async login() {
       if (this.valid) {
         this.authenticate({
           strategy: "local",
           ...this.user
         })
-          .then(() => {
-            console.log("Yay");
+          .then(async () => {
             this.$router.push("/boards");
           })
           .catch(e => {
